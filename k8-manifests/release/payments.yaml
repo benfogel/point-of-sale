@@ -35,7 +35,7 @@ spec:
         fsGroup: 1000
       containers:
       - name: payments
-        image: us-docker.pkg.dev/point-of-sale-ci/pos-images/payments:v0.1.0
+        image: gcr.io/anthos-bare-metal-lab-1/pos/payments:547b102-dirty
         securityContext:
           privileged: false
           allowPrivilegeEscalation: false

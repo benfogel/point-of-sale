@@ -16,12 +16,13 @@
 
 package com.google.abmedge.payments.dao;
 
+import org.springframework.stereotype.Component;
+
 import com.google.abmedge.payment.Payment;
 import com.google.abmedge.payment.PaymentRepository;
 import com.google.abmedge.payments.dto.Bill;
 import com.google.abmedge.payments.util.BillGenerator;
 import com.google.abmedge.payments.util.PaymentProcessingFailedException;
-import org.springframework.stereotype.Component;
 
 /**
  * An implementation of the {@link PaymentGateway} that connects to the database to persist and

@@ -68,4 +68,7 @@ export default {
   async types() {
     return get(`${API_SERVER_URL}/api/types`, HEADERS);
   },
+  async recipes() {
+    return get(`${API_SERVER_URL}/api/recipes`, HEADERS);
+  },
 };

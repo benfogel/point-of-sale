@@ -1,0 +1,634 @@
+items:
+- name: "BigBurger"
+  type: "burgers"
+  price: 5.50 # Based on estimated costs of ingredients and market value
+  imageUrl: "usr/lib/images/bigburger.png"
+  quantity: 200
+  labels: [ "retail", "restaurant", "food" ]
+- name: "DoubleBurger"
+  type: "burgers"
+  price: 7.20 # Reflects increased ingredients and slightly higher preparation
+  imageUrl: "usr/lib/images/burgers.png"
+  quantity: 200
+  labels: [ "retail", "restaurant", "food" ]
+- name: "Shirt"
+  type: "textile"
+  price: 15.50 #  Reflects cost of materials, labor and brand markup
+  imageUrl: "usr/lib/images/shirt.png"
+  quantity: 50
+  labels: [ "retail", "textile", "clothing" ]
+- name: "Short"
+  type: "textile"
+  price: 17.20 # Accounts for slightly more complex design/material compared to shirt
+  imageUrl: "usr/lib/images/short.png"
+  quantity: 20
+  labels: [ "retail", "textile", "clothing" ]
+- name: "Ground Beef (80/20 blend)"
+  type: "ingredient"
+  price: 3.50 # Based on current market price per pounda
+  imageUrl: "usr/lib/images/ground_beef.png" #Placeholder, update as needed
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Salt"
+  type: "ingredient"
+  price: 0.50 # Nominal price for a bulk container
+  imageUrl: "usr/lib/images/salt.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Black Pepper"
+  type: "ingredient"
+  price: 1.00 # Price for a bulk container of ground pepper
+  imageUrl: "usr/lib/images/black_pepper.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "American Cheese"
+  type: "ingredient"
+  price: 2.75 # Based on price per pound/slice
+  imageUrl: "usr/lib/images/american_cheese.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Hamburger Bun"
+  type: "ingredient"
+  price: 1.25 # Price per package/piece
+  imageUrl: "usr/lib/images/hamburger_bun.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Lettuce (Iceberg or Romaine)"
+  type: "ingredient"
+  price: 2.00 # Price per head/bag
+  imageUrl: "usr/lib/images/lettuce.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Tomato"
+  type: "ingredient"
+  price: 2.50 # Price per pound
+  imageUrl: "usr/lib/images/tomato.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Red Onion"
+  type: "ingredient"
+  price: 1.75 # Price per pound
+  imageUrl: "usr/lib/images/red_onion.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Pickle Slices (Dill)"
+  type: "ingredient"
+  price: 1.50 # Based on cost per jar/container
+  imageUrl: "usr/lib/images/pickle_slices.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Ketchup"
+  type: "ingredient"
+  price: 2.25 # Based on price per bottle/gallon
+  imageUrl: "usr/lib/images/ketchup.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Mustard"
+  type: "ingredient"
+  price: 1.75 # Based on price per bottle/gallon
+  imageUrl: "usr/lib/images/mustard.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Mayonnaise"
+  type: "ingredient"
+  price: 2.50 # Based on price per jar/gallon
+  imageUrl: "usr/lib/images/mayonnaise.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Pre-cooked Bacon"
+  type: "ingredient"
+  price: 6.00 # Based on price per package
+  imageUrl: "usr/lib/images/bacon.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Swiss Cheese"
+  type: "ingredient"
+  price: 3.25 # Based on price per pound/slice
+  imageUrl: "usr/lib/images/swiss_cheese.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Fresh Mushrooms (Sliced)"
+  type: "ingredient"
+  price: 4.00 # Based on price per pound
+  imageUrl: "usr/lib/images/mushrooms.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Butter"
+  type: "ingredient"
+  price: 3.00 # Based on price per pound
+  imageUrl: "usr/lib/images/butter.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Garlic (Minced)"
+  type: "ingredient"
+  price: 2.00 # Based on price per jar/container
+  imageUrl: "usr/lib/images/minced_garlic.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Cheddar Cheese"
+  type: "ingredient"
+  price: 3.00 # Based on price per pound/slice
+  imageUrl: "usr/lib/images/cheddar_cheese.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "BBQ Sauce"
+  type: "ingredient"
+  price: 2.50 # Based on price per bottle/gallon
+  imageUrl: "usr/lib/images/bbq_sauce.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Onion Rings (Optional)"
+  type: "ingredient"
+  price: 3.50 # price per serving
+  imageUrl: "usr/lib/images/onion_rings.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "optional", "ONSALE" ]
+- name: "Pepper Jack Cheese"
+  type: "ingredient"
+  price: 3.50 # Based on price per pound/slice
+  imageUrl: "usr/lib/images/pepper_jack_cheese.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Pickled Jalapeño Slices"
+  type: "ingredient"
+  price: 2.00 # Based on cost per jar/container
+  imageUrl: "usr/lib/images/jalapenos.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Sriracha or Chipotle Powder"
+  type: "ingredient"
+  price: 2.25 # Based on price per bottle/container
+  imageUrl: "usr/lib/images/sriracha.png" #Placeholder, or chipotle_powder.png
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Rye Bread"
+  type: "ingredient"
+  price: 3.00 # Cost for a Loaf
+  imageUrl: "usr/lib/images/rye_bread.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Yellow Onion"
+  type: "ingredient"
+  price: 1.50 #  Price per Pound.
+  imageUrl: "usr/lib/images/yellow_onion.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Sugar"
+  type: "ingredient"
+  price: 0.75 #Price per pound.
+  imageUrl: "usr/lib/images/sugar.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Blue Cheese (Crumbled)"
+  type: "ingredient"
+  price: 5.00 #Price per pound.
+  imageUrl: "usr/lib/images/blue_cheese.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Egg"
+  type: "ingredient"
+  price: 3.50 # price per dozen.
+  imageUrl: "usr/lib/images/egg.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Avocado"
+  type: "ingredient"
+  price: 2.00 # price per unit.
+  imageUrl: "usr/lib/images/avocado.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Lime Juice"
+  type: "ingredient"
+  price: 1.25 # price per bottle.
+  imageUrl: "usr/lib/images/lime_juice.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Cilantro (Chopped)"
+  type: "ingredient"
+  price: 1.75 # price per bunch
+  imageUrl: "usr/lib/images/cilantro.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Pico de Gallo (Optional)"
+  type: "ingredient"
+  price: 3.00 # per order
+  imageUrl: "usr/lib/images/pico_de_gallo.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Panko Bread Crumbs"
+  type: "ingredient"
+  price: 4.00 # Price for a Bag
+  imageUrl: "usr/lib/images/panko_bread_crumbs.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Soy Sauce"
+  type: "ingredient"
+  price: 2.50 # price per bottle
+  imageUrl: "usr/lib/images/soy_sauce.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Teriyaki Sauce"
+  type: "ingredient"
+  price: 3.50 # price per bottle
+  imageUrl: "usr/lib/images/teriyaki_sauce.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Pineapple Ring"
+  type: "ingredient"
+  price: 1.00 # price per ring
+  imageUrl: "usr/lib/images/pineapple.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Chili Powder"
+  type: "ingredient"
+  price: 2.25 # price per container
+  imageUrl: "usr/lib/images/chili_powder.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Cumin"
+  type: "ingredient"
+  price: 1.50 # price per container
+  imageUrl: "usr/lib/images/cumin.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Oregano"
+  type: "ingredient"
+  price: 1.75 # price per container
+  imageUrl: "usr/lib/images/oregano.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Diced Tomatoes (Canned)"
+  type: "ingredient"
+  price: 1.00 # price per can
+  imageUrl: "usr/lib/images/diced_tomatoes.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient", "ONSALE" ]
+- name: "Kidney Beans (Canned)"
+  type: "ingredient"
+  price: 1.25 # price per can
+  imageUrl: "usr/lib/images/kidney_beans.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Beef Broth"
+  type: "ingredient"
+  price: 1.50 # price per container
+  imageUrl: "usr/lib/images/beef_broth.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Cheddar Cheese (Shredded)"
+  type: "ingredient"
+  price: 3.25 # price per container
+  imageUrl: "usr/lib/images/shredded_cheddar.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Black Beans (Cooked, Drained)"
+  type: "ingredient"
+  price: 1.75 # price per can
+  imageUrl: "usr/lib/images/black_beans.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Cooked Corn"
+  type: "ingredient"
+  price: 2.00 # cost per pound
+  imageUrl: "usr/lib/images/corn.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Breadcrumbs (Panko Recommended)"
+  type: "ingredient"
+  price: 4.00 # Bag Cost.
+  imageUrl: "usr/lib/images/panko_bread_crumbs.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Smoked Paprika"
+  type: "ingredient"
+  price: 2.50 # Cost per container.
+  imageUrl: "usr/lib/images/smoked_paprika.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Garlic Powder"
+  type: "ingredient"
+  price: 1.75 # Cost per Container
+  imageUrl: "usr/lib/images/garlic_powder.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Flaxseed Meal"
+  type: "ingredient"
+  price: 5.00 # Cost per bag
+  imageUrl: "usr/lib/images/flaxseed_meal.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Ground Turkey (85% lean recommended)"
+  type: "ingredient"
+  price: 4.50 # cost per pound
+  imageUrl: "usr/lib/images/ground_turkey.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Onion Powder"
+  type: "ingredient"
+  price: 2.00 # per container
+  imageUrl: "usr/lib/images/onion_powder.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Dried Herbs (e.g., Thyme, Rosemary)"
+  type: "ingredient"
+  price: 3.00 # per container
+  imageUrl: "usr/lib/images/dried_herbs.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "All-Beef Hot Dogs"
+  type: "ingredient"
+  price: 5.75 # Price per package.
+  imageUrl: "usr/lib/images/all_beef_hot_dogs.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Hot Dog Bun"
+  type: "ingredient"
+  price: 1.50 # Cost per pack
+  imageUrl: "usr/lib/images/hot_dog_bun.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Sweet Pickle Relish"
+  type: "ingredient"
+  price: 2.25 # price per container
+  imageUrl: "usr/lib/images/relish.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Poppy Seed Hot Dog Bun"
+  type: "ingredient"
+  price: 1.75 # Cost per pack
+  imageUrl: "usr/lib/images/poppy_seed_bun.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Bright Green Sweet Pickle Relish"
+  type: "ingredient"
+  price: 2.50 # price per container
+  imageUrl: "usr/lib/images/bright_green_relish.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Dill Pickle Spear"
+  type: "ingredient"
+  price: 1.00 # price per spear
+  imageUrl: "usr/lib/images/dill_pickle_spear.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Tomato Wedges or Slices"
+  type: "ingredient"
+  price: 2.50 # price per container
+  imageUrl: "usr/lib/images/tomato_wedges.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Pickled Sport Peppers"
+  type: "ingredient"
+  price: 3.00 # price per container
+  imageUrl: "usr/lib/images/sport_peppers.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Celery Salt"
+  type: "ingredient"
+  price: 1.50 # price per container
+  imageUrl: "usr/lib/images/celery_salt.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Sauerkraut (Prepared)"
+  type: "ingredient"
+  price: 2.75 # Price per can.
+  imageUrl: "usr/lib/images/sauerkraut.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Spicy Brown Mustard"
+  type: "ingredient"
+  price: 2.00 # Price per bottle.
+  imageUrl: "usr/lib/images/spicy_brown_mustard.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Shredded Cabbage (Green and/or Red)"
+  type: "ingredient"
+  price: 2.25 # Estimated Price per Pound.
+  imageUrl: "usr/lib/images/shredded_cabbage.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Shredded Carrots"
+  type: "ingredient"
+  price: 2.00 # Estimated Price per Pound
+  imageUrl: "usr/lib/images/shredded_carrots.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Vinegar (Apple Cider or White)"
+  type: "ingredient"
+  price: 1.75 # Estimate price per container.
+  imageUrl: "usr/lib/images/vinegar.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Corned beef"
+  type: "ingredient"
+  price: 7.00 # price per pound
+  imageUrl: "usr/lib/images/corned_beef.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Thousand Island dressing"
+  type: "ingredient"
+  price: 3.00 # price per bottle.
+  imageUrl: "usr/lib/images/thousand_island.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Elbow Macaroni"
+  type: "ingredient"
+  price: 1.50 # price per box
+  imageUrl: "usr/lib/images/elbow_macaroni.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Pinto beans"
+  type: "ingredient"
+  price: 2.00 # price per bag
+  imageUrl: "usr/lib/images/pinto_beans.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Cream cheese"
+  type: "ingredient"
+  price: 3.50 # price per package
+  imageUrl: "usr/lib/images/cream_cheese.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Red Bell Pepper"
+  type: "ingredient"
+  price: 2.00 # price per unit
+  imageUrl: "usr/lib/images/red_bell_pepper.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Green Bell Pepper"
+  type: "ingredient"
+  price: 2.00 # price per unit
+  imageUrl: "usr/lib/images/green_bell_pepper.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Potatoes"
+  type: "ingredient"
+  price: 1.50 # price per pound
+  imageUrl: "usr/lib/images/potatoes.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Olive Oil"
+  type: "ingredient"
+  price: 4.00 # price per bottle
+  imageUrl: "usr/lib/images/olive_oil.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Kielbasa sausage"
+  type: "ingredient"
+  price: 6.50 # cost per package
+  imageUrl: "usr/lib/images/kielbasa.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "French fries"
+  type: "ingredient"
+  price: 3.50 # Cost per serving
+  imageUrl: "usr/lib/images/french_fries.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Wooden Skewer"
+  type: "ingredient"
+  price: 0.10 # each
+  imageUrl: "usr/lib/images/skewer.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Yellow Cornmeal"
+  type: "ingredient"
+  price: 3.00 # Cost per bag.
+  imageUrl: "usr/lib/images/cornmeal.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Baking Powder"
+  type: "ingredient"
+  price: 2.50 # Price per can.
+  imageUrl: "usr/lib/images/baking_powder.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Oil for Frying"
+  type: "ingredient"
+  price: 10.00 # price per gallon
+  imageUrl: "usr/lib/images/frying_oil.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Ice Cream (Vanilla, Chocolate, Strawberry, Cherry, Pistachio, Yogurt)"
+  type: "ingredient"
+  price: 6.00 # cost per gallon.
+  imageUrl: "usr/lib/images/ice_cream.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Hot Fudge Sauce"
+  type: "ingredient"
+  price: 4.50 # cost per bottle
+  imageUrl: "usr/lib/images/hot_fudge.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Caramel Sauce"
+  type: "ingredient"
+  price: 4.00 # cost per bottle.
+  imageUrl: "usr/lib/images/caramel_sauce.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Strawberry Sauce"
+  type: "ingredient"
+  price: 3.50 # cost per bottle.
+  imageUrl: "usr/lib/images/strawberry_sauce.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Whipped Cream"
+  type: "ingredient"
+  price: 3.00 # cost per can
+  imageUrl: "usr/lib/images/whipped_cream.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Maraschino Cherries"
+  type: "ingredient"
+  price: 2.75 # price per jar
+  imageUrl: "usr/lib/images/maraschino_cherries.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Banana"
+  type: "ingredient"
+  price: 0.50 # price per unit
+  imageUrl: "usr/lib/images/banana.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Chocolate Syrup"
+  type: "ingredient"
+  price: 3.00 # per bottle.
+  imageUrl: "usr/lib/images/chocolate_syrup.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Pineapple Topping"
+  type: "ingredient"
+  price: 4.00 # per can
+  imageUrl: "usr/lib/images/pineapple_topping.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Strawberry Topping"
+  type: "ingredient"
+  price: 3.75 # per can
+  imageUrl: "usr/lib/images/strawberry_topping.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Chopped Nuts (Peanuts or Walnuts)"
+  type: "ingredient"
+  price: 5.50 # price per pound.
+  imageUrl: "usr/lib/images/chopped_nuts.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Brownie"
+  type: "ingredient"
+  price: 2.00 # per piece.
+  imageUrl: "usr/lib/images/brownie.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Milk (Whole or 2%)"
+  type: "ingredient"
+  price: 3.00 # per Gallon
+  imageUrl: "usr/lib/images/milk.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Vanilla Extract"
+  type: "ingredient"
+  price: 5.00 # per Bottle.
+  imageUrl: "usr/lib/images/vanilla_extract.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Malted Milk Powder"
+  type: "ingredient"
+  price: 6.00 # Price per Can.
+  imageUrl: "usr/lib/images/malted_milk_powder.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Flavored Syrup (Chocolate, Strawberry, etc.)"
+  type: "ingredient"
+  price: 3.50 # per Bottle
+  imageUrl: "usr/lib/images/flavored_syrup.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Soda Water (Club Soda or Seltzer)"
+  type: "ingredient"
+  price: 2.50 # per liter.
+  imageUrl: "usr/lib/images/soda_water.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Cookies (Chocolate Chip, Oatmeal, etc.)"
+  type: "ingredient"
+  price: 4.50 # pack cost.
+  imageUrl: "usr/lib/images/cookie.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Espresso"
+  type: "ingredient"
+  price: 3.00 # price per shot.
+  imageUrl: "usr/lib/images/espresso.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Root Beer"
+  type: "ingredient"
+  price: 2.00 # per bottle.
+  imageUrl: "usr/lib/images/root_beer.png" #Placeholder
+  quantity: 200
+  labels: [ "retail", "restaurant", "food", "ingredient" ]
+- name: "Mixed Berries"
+  type: "ingredient"
+  price: 5.00 # price per pound.

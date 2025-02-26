@@ -16,15 +16,32 @@
 
 package com.google.abmedge.payments.util;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.util.UriUtils;
+
 import com.google.abmedge.payment.Payment;
 import com.google.abmedge.payment.PaymentType;
 import com.google.abmedge.payment.PaymentUnit;
 import com.google.abmedge.payments.dto.Bill;
 import com.google.abmedge.payments.dto.PaymentStatus;
-import java.math.BigDecimal;
-import java.util.UUID;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 
 public class BillGenerator {
 
@@ -37,6 +54,16 @@ public class BillGenerator {
   private static final String PAID = "  Paid:";
   private static final String BALANCE = "  Balance:";
   private static final double TAX_VALUE = 0.1495;
+  private static final HttpClient HTTP_CLIENT =
+  HttpClient.newBuilder()
+      .version(HttpClient.Version.HTTP_1_1)
+      .connectTimeout(Duration.ofSeconds(11))
+      .build();
+  private static final String LLM_EP_ENV = "LLM_EP";
+  private static final String LLM_EP = "/chat";
+  private static  String LLM_SERVICE = "http://localhost:8888";
+
+  
 
   /**
    * This method takes in an ID identifying a payment and a {@link Payment} object and generates a
@@ -51,17 +78,72 @@ public class BillGenerator {
    * @return a {@link Bill} that contains the payment details and a string representation of the
    *     bill
    */
+
+  public static void initServiceEndpoints() {
+    String llm = System.getenv(LLM_EP_ENV);
+    if (StringUtils.isNotBlank(llm)) {
+      LOGGER.info(String.format("Setting llm service endpoint to: %s", llm));
+      LLM_SERVICE = llm;
+    } else {
+      LOGGER.warn(
+          String.format(
+              "Could not read environment variable %s; thus defaulting to %s",
+              LLM_EP_ENV, LLM_SERVICE));
+    }
+  }
+
+  
+
   public static Bill generateBill(UUID paymentId, Payment payment) {
+    BillGenerator.initServiceEndpoints();
+
+
     float total = 0;
     StringBuilder billBuilder = new StringBuilder();
     billBuilder.append(billHeader(paymentId));
     // append an entry per purchase item to the bill
     int itemIndex = 1;
+    List<String> itemlist = new ArrayList<>();
+
     for (PaymentUnit pu : payment.getUnitList()) {
       billBuilder.append(billItem(itemIndex, pu));
       total += pu.getTotalCost().floatValue();
       itemIndex++;
+      itemlist.add(pu.getName());
     }
+    
+    String message = "with the following ingredients" + itemlist.toString() + ", what recipes can i make?";
+    LOGGER.info(message);
+    String encodedMessage = UriUtils.encodeQueryParam(message, StandardCharsets.UTF_8);
+
+    LOGGER.info(message);
+    String endpoint = LLM_SERVICE + LLM_EP+ "?message=" + encodedMessage;
+    String content = new String();
+    try {
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .uri(URI.create(endpoint))
+            .build();
+    HttpResponse<String> response =
+            HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        int statusCode = response.statusCode();
+        if (statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.NO_CONTENT.value()) {
+          String responseRecipe = response.body();
+          Gson gson = new Gson();
+          JsonObject jsonRecipe = gson.fromJson(responseRecipe,JsonObject.class);
+          content = jsonRecipe.get("content").getAsString();
+
+          LOGGER.info(String.format(
+                  "'%s' Response: \n%s",
+                  endpoint, content));
+
+        }
+      }     
+        catch (IOException | InterruptedException e) {
+        LOGGER.error(String.format("Failed to fetch recipes '%s'", endpoint), e);
+      }
+          
     billBuilder.append(BILL_HEADER);
     float tax = Double.valueOf(total * TAX_VALUE).floatValue();
     float paid = payment.getPaidAmount().floatValue();
@@ -71,6 +153,11 @@ public class BillGenerator {
     billBuilder.append(infoLine(PAID, paid));
     billBuilder.append(infoLine(BALANCE, balance));
     billBuilder.append(BILL_HEADER);
+
+    for (String line : content.split("\\n")) {
+      billBuilder.append(formatLine(line, BILL_HEADER.length())).append("\n");
+  }
+
     LOGGER.info(String.format("Processed payment:\n%s", billBuilder));
     //  ----------------------------------------------------------------------------
     //                Payment id: 02beba81-e19f-4543-9823-261db722ed02
@@ -83,6 +170,8 @@ public class BillGenerator {
     //    Paid:                                                             $5000.00
     //    Balance:                                                          $4936.04
     //  ----------------------------------------------------------------------------
+
+
     return new Bill()
         .setPayment(payment)
         .setStatus(PaymentStatus.SUCCESS)
@@ -155,6 +244,41 @@ public class BillGenerator {
     return sb.toString();
   }
 
+  private static String formatLine(String line, int margin) {
+    StringBuilder formattedLine = new StringBuilder();
+    List<String> wrappedLines = wordWrap(line, margin); //Use the word wrap method from before.
+
+    for (String wrappedLine : wrappedLines) {
+        formattedLine.append(wrappedLine).append("\n"); // Append each wrapped line with a newline
+    }
+    return formattedLine.toString().trim(); // Trim to remove the trailing newline
+  }
+  
+  private static List<String> wordWrap(String text, int margin) {
+    List<String> lines = new ArrayList<>();
+    StringBuilder currentLine = new StringBuilder();
+
+    String[] words = text.split(" ");
+
+    for (String word : words) {
+        if (currentLine.length() + word.length() + 1 <= margin) {
+            if (currentLine.length() > 0) {
+                currentLine.append(" ");
+            }
+            currentLine.append(word);
+        } else {
+            lines.add(currentLine.toString());
+            currentLine = new StringBuilder(word);
+        }
+    }
+
+    if (currentLine.length() > 0) {
+        lines.add(currentLine.toString());
+    }
+
+    return lines;
+  }
+  
   /**
    * Utility method that takes in a number and creates a concatenation of that many spaces
    *

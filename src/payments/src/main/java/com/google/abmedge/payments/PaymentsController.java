@@ -14,13 +14,8 @@
 
 package com.google.abmedge.payments;
 
-import com.google.abmedge.payment.Payment;
-import com.google.abmedge.payments.dao.DatabasePaymentGateway;
-import com.google.abmedge.payments.dao.PaymentGateway;
-import com.google.abmedge.payments.dto.Bill;
-import com.google.abmedge.payments.util.PaymentProcessingFailedException;
-import com.google.gson.Gson;
 import javax.annotation.PostConstruct;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -32,6 +27,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.google.abmedge.payment.Payment;
+import com.google.abmedge.payments.dao.DatabasePaymentGateway;
+import com.google.abmedge.payments.dao.PaymentGateway;
+import com.google.abmedge.payments.dto.Bill;
+import com.google.abmedge.payments.util.PaymentProcessingFailedException;
+import com.google.gson.Gson;
 
 /**
  * This is the main controller class for the payments service defines the APIs exposed by the

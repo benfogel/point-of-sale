@@ -224,7 +224,7 @@ export default {
       this.printedBill = responseData.printedBill;
       setTimeout(() => {
         this.clearBill();
-      }, 3000);
+      }, 10000);
     },
     clear() {
       this.lineItems = [];

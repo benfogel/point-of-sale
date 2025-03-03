@@ -22,7 +22,7 @@ data:
   PAYMENTS_EP: "http://payments-svc:8080"
   LLM_EP: "http://next-action-agent-svc:8080"
   MYSQL_HOST: "mysql-db"
-  ACTIVE_ITEM_TYPE: "burgers"
+  ACTIVE_ITEM_TYPE: "ingredient"
   ITEMS: |
     items:
     - name: "BigBurger"

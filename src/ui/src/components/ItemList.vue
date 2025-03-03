@@ -52,4 +52,9 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.list-group {
+  margin-bottom: 28px;
+}
+
+</style>

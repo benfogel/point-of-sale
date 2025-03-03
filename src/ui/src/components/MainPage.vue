@@ -33,8 +33,51 @@
           </div>
           <div class="col-md-6">
             <item-list :items="items" @add="addItem"></item-list>
+            <b-card
+              border-variant="secondary"
+              header="Can't find an item?"
+              header-bg-variant="secondary"
+              header-text-variant="white"
+              align="center">
+              Use the search box below to describe your item
+              to add to the cart.
+              <b-form inlin class="find-form">
+                <label
+                  class="sr-only"
+                  for="inline-form-input-username"
+                >Item Description</label>
+                <b-form-input
+                  id="inline-form-input-username"
+                  v-model="findItemDescription"
+                  placeholder="Describe the item"
+                  class="col-md-4"
+                ></b-form-input>
+                <b-button
+                  class="col-md-12"
+                  variant="secondary"
+                  @click="findItem"
+                >Find Item</b-button>
+              </b-form>
+            </b-card>
+            <div class="row">
+              <div
+                v-for="(item, index) in foundItems"
+                :key="index"
+                class="col-md-4 found-item"
+                align="center">
+                {{  item.name }} -
+                ${{  item.price }}
+                <b-button
+                  variant="primary"
+                  @click="addFoundItem(item)"
+                >Add Item</b-button>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+      <div class="col-md-2">
+
       </div>
     </div>
     <div v-if="hasBill" class="bill-container">
@@ -63,6 +106,8 @@ export default {
       lineItems: [],
       storeTypes: [],
       printedBill: null,
+      findItemDescription: '',
+      foundItems: [],
     };
   },
   computed: {
@@ -107,7 +152,7 @@ export default {
     addItem(item) {
       let found = false;
       for (let i = 0; i < this.lineItems.length; i++) {
-        if (this.lineItems[i].item === item) {
+        if (this.lineItems[i].item.id === item.id) {
           this.lineItems[i].numberOfItems++;
           found = true;
           break;
@@ -116,6 +161,23 @@ export default {
       if (!found) {
         this.lineItems.push({item: item, numberOfItems: 1, editing: false});
       }
+    },
+    addFoundItem(item) {
+      this.addItem(item);
+      this.foundItems = [];
+    },
+    async findItem() {
+      const response = await RetailEdgeAppApi.search(this.findItemDescription);
+      if (response.status !== 200 && response.status !== 204) {
+        this.notifyFailure('Failed to search for items!');
+        return;
+      }
+
+      const data = await response.json();
+      this.foundItems = data.reduce((acc, curr) => {
+        acc = [curr, ...acc];
+        return acc;
+      }, []);
     },
     removeItem(item) {
       for (let i = 0; i < this.lineItems.length; i++) {
@@ -219,5 +281,13 @@ export default {
   border-radius: 30px;
   padding-bottom: 20px;
   padding-top: 20px;
+}
+
+.find-form {
+  padding-top: 10px;
+}
+
+.found-item {
+  padding-top: 28px
 }
 </style>

@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -66,6 +67,7 @@ public class ApiServerController {
   private static final String INVENTORY_EP_ENV = "INVENTORY_EP";
   private static final String PAYMENTS_EP_ENV = "PAYMENTS_EP";
   private static final String ITEMS_EP = "/items";
+  private static final String ITEMS_SEARCH_EP = "/search";
   private static final String TYPES_EP = "/types";
   private static final String ITEMS_BY_ID_EP = "/items_by_id";
   private static final String SWITCH_EP = "/switch";
@@ -116,6 +118,31 @@ public class ApiServerController {
               "Failed to fetch items list from '%s'. Status code '%s'", itemsEndpoint, statusCode));
     } catch (IOException | InterruptedException e) {
       LOGGER.error(String.format("Failed to fetch items list from '%s'", itemsEndpoint), e);
+    }
+    return new ResponseEntity<>(FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> search(@RequestParam("message") String message) {
+    String itemsEndpoint = INVENTORY_SERVICE + ITEMS_SEARCH_EP;
+    try {
+      HttpRequest request = HttpRequest.newBuilder().GET().uri(URI.create(itemsEndpoint + "?message=" + message)).build();
+      HttpResponse<String> response =
+          HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+      int statusCode = response.statusCode();
+      if (statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.NO_CONTENT.value()) {
+        String responseItems = response.body();
+        LOGGER.info(
+            String.format(
+                "Inventory service response for endpoint '%s' is: \n%s",
+                itemsEndpoint, responseItems));
+        return new ResponseEntity<>(responseItems, HttpStatus.OK);
+      }
+      LOGGER.error(
+          String.format(
+              "Failed to fetch items list from '%s'. Status code '%s'", itemsEndpoint, statusCode));
+    } catch (IOException | InterruptedException e) {
+      LOGGER.error(String.format("Failed to search items list from '%s'", itemsEndpoint), e);
     }
     return new ResponseEntity<>(FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
   }

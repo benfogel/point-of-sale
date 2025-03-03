@@ -65,6 +65,9 @@ export default {
   async items() {
     return get(`${API_SERVER_URL}/api/items`, HEADERS);
   },
+  async search(message) {
+    return get(`${API_SERVER_URL}/api/search?message=${message}`, HEADERS);
+  },
   async types() {
     return get(`${API_SERVER_URL}/api/types`, HEADERS);
   },

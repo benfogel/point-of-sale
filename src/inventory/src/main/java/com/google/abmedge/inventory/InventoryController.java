@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -111,6 +112,18 @@ public class InventoryController {
 
   @GetMapping(value = "/items", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> items() {
+    List<Item> inventoryItems =
+        activeItemsType.equals(ALL_ITEMS)
+            ? activeConnector.getAll()
+            : activeConnector.getAllByType(activeItemsType);
+    String jsonString = GSON.toJson(inventoryItems, new TypeToken<List<Item>>() {}.getType());
+    return new ResponseEntity<>(jsonString, HttpStatus.OK);
+  }
+
+  @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> search(@RequestParam("message") String message) {
+    // TODO: use message w/ LLM to filter items
+
     List<Item> inventoryItems =
         activeItemsType.equals(ALL_ITEMS)
             ? activeConnector.getAll()

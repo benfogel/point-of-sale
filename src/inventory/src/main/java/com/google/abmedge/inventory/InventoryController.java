@@ -14,13 +14,12 @@
 
 package com.google.abmedge.inventory;
 
-import com.google.abmedge.inventory.dao.DatabaseConnector;
-import com.google.abmedge.inventory.dao.InventoryStoreConnector;
-import com.google.abmedge.inventory.dto.Inventory;
-import com.google.abmedge.inventory.util.InventoryStoreConnectorException;
-import com.google.abmedge.payment.PurchaseItem;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,7 +28,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,12 +43,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+
+import com.google.abmedge.inventory.dao.DatabaseConnector;
+import com.google.abmedge.inventory.dao.InventoryStoreConnector;
+import com.google.abmedge.inventory.dto.Inventory;
+import com.google.abmedge.inventory.util.InventoryStoreConnectorException;
+import com.google.abmedge.payment.PurchaseItem;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * This is the main controller class for the inventory service defines the APIs exposed by the
@@ -62,6 +71,14 @@ public class InventoryController {
   private static final String INVENTORY_ITEMS_ENV_VAR = "ITEMS";
   private static final String ALL_ITEMS = "ALL";
   private static final Gson GSON = new Gson();
+  private static final HttpClient HTTP_CLIENT =
+  HttpClient.newBuilder()
+      .version(HttpClient.Version.HTTP_1_1)
+      .connectTimeout(Duration.ofSeconds(11))
+      .build();
+  private static final String LLM_EP_ENV = "LLM_EP";
+  private static final String LLM_EP = "/chat";
+  private static  String LLM_SERVICE = "http://localhost:8888";
 
   // the context of the inventory service (e.g. textile, food, electronics, etc)
   private String activeItemsType;
@@ -73,11 +90,25 @@ public class InventoryController {
     this.databaseConnector = databaseConnector;
   }
 
+  public static void initServiceEndpoints() {
+    String llm = System.getenv(LLM_EP_ENV);
+    if (StringUtils.isNotBlank(llm)) {
+      LOGGER.info(String.format("Setting llm service endpoint to: %s", llm));
+      LLM_SERVICE = llm;
+    } else {
+      LOGGER.warn(
+          String.format(
+              "Could not read environment variable %s; thus defaulting to %s",
+              LLM_EP_ENV, LLM_SERVICE));
+    }
+  }
+
   /**
    * This method runs soon after the object for this class is created on startup of the application.
    */
   @PostConstruct
   void init() {
+    initServiceEndpoints();
     initConnectorType();
     initItemsType();
     initInventoryItems();
@@ -120,10 +151,73 @@ public class InventoryController {
     return new ResponseEntity<>(jsonString, HttpStatus.OK);
   }
 
-  @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> search(@RequestParam("message") String message) {
-    // TODO: use message w/ LLM to filter items
+  public static class SearchRequest {
+    private String message;
+    private boolean item_flag;
 
+    public String getMessage() {
+      return message;
+    }
+
+    public void setMessage(String message) {
+      this.message = message;
+    }
+
+    public boolean isItem_flag() {
+      return item_flag;
+    }
+
+    public void setItem_flag(boolean item_flag) {
+      this.item_flag = item_flag;
+    }
+  }
+
+
+  @PostMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> search(@RequestBody SearchRequest searchRequest) {
+
+    Gson gson = new Gson();
+
+    // Create a Map to represent the JSON structure
+    Map<String, Object> requestBodyMap = new HashMap<>();
+
+    requestBodyMap.put("message", searchRequest.message);
+    requestBodyMap.put("item_flag", true);
+    
+    // String encodedMessage = UriUtils.encodeQueryParam(message, StandardCharsets.UTF_8);
+    String requestBody = gson.toJson(requestBodyMap);
+    LOGGER.info(searchRequest.message);
+    String endpoint = LLM_SERVICE + LLM_EP;
+    String content = new String();
+    try {
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+            .uri(URI.create(endpoint))
+            .header("Content-Type", "application/json")
+            .build();
+    HttpResponse<String> response =
+            HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        int statusCode = response.statusCode();
+        if (statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.NO_CONTENT.value()) {
+          String responseRecipe = response.body();
+          Gson gson_response = new Gson();
+          JsonObject jsonRecipe = gson_response.fromJson(responseRecipe,JsonObject.class);
+          content = jsonRecipe.get("content").getAsString();
+
+          LOGGER.info(String.format(
+                  "'%s' Response: \n%s",
+                  endpoint, content));
+
+        }
+      }     
+        catch (IOException | InterruptedException e) {
+        LOGGER.error(String.format("Failed to fetch recipes '%s'", endpoint), e);
+      }
+
+      LOGGER.info(content);
+    
+    
     List<Item> inventoryItems =
         activeItemsType.equals(ALL_ITEMS)
             ? activeConnector.getAll()

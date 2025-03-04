@@ -22,17 +22,17 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.util.UriUtils;
 
 import com.google.abmedge.payment.Payment;
 import com.google.abmedge.payment.PaymentType;
@@ -112,26 +112,33 @@ public class BillGenerator {
       itemlist.add(pu.getName());
     }
     
-    String message = "with the following ingredients" + itemlist.toString() + ", what recipes can i make?";
-    LOGGER.info(message);
-    String encodedMessage = UriUtils.encodeQueryParam(message, StandardCharsets.UTF_8);
+    Gson gson = new Gson();
 
+    // Create a Map to represent the JSON structure
+    Map<String, Object> requestBodyMap = new HashMap<>();
+    String message = "with the following ingredients" + itemlist.toString() + ", what recipes can i make?";
+    requestBodyMap.put("message", message);
+    requestBodyMap.put("item_flag", false);
+    
+    // String encodedMessage = UriUtils.encodeQueryParam(message, StandardCharsets.UTF_8);
+    String requestBody = gson.toJson(requestBodyMap);
     LOGGER.info(message);
-    String endpoint = LLM_SERVICE + LLM_EP+ "?message=" + encodedMessage;
+    String endpoint = LLM_SERVICE + LLM_EP;
     String content = new String();
     try {
     HttpRequest request =
         HttpRequest.newBuilder()
-            .POST(HttpRequest.BodyPublishers.noBody())
+            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .uri(URI.create(endpoint))
+            .header("Content-Type", "application/json")
             .build();
     HttpResponse<String> response =
             HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
         int statusCode = response.statusCode();
         if (statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.NO_CONTENT.value()) {
           String responseRecipe = response.body();
-          Gson gson = new Gson();
-          JsonObject jsonRecipe = gson.fromJson(responseRecipe,JsonObject.class);
+          Gson gson_response = new Gson();
+          JsonObject jsonRecipe = gson_response.fromJson(responseRecipe,JsonObject.class);
           content = jsonRecipe.get("content").getAsString();
 
           LOGGER.info(String.format(

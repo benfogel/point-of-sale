@@ -14,12 +14,13 @@
 
 package com.google.abmedge.inventory.dao;
 
-import com.google.abmedge.inventory.Item;
-import com.google.abmedge.inventory.util.InventoryStoreConnectorException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
+import com.google.abmedge.inventory.Item;
+import com.google.abmedge.inventory.util.InventoryStoreConnectorException;
 
 /**
  * {@link InventoryStoreConnector} explains the interface using which we can interact with the

@@ -14,14 +14,6 @@
 
 package com.google.abmedge.apiserver;
 
-import com.google.abmedge.apiserver.dto.PayRequest;
-import com.google.abmedge.inventory.Item;
-import com.google.abmedge.payment.Payment;
-import com.google.abmedge.payment.PaymentType;
-import com.google.abmedge.payment.PaymentUnit;
-import com.google.abmedge.payment.PurchaseItem;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -30,13 +22,16 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,9 +44,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.google.abmedge.apiserver.dto.PayRequest;
+import com.google.abmedge.inventory.Item;
+import com.google.abmedge.payment.Payment;
+import com.google.abmedge.payment.PaymentType;
+import com.google.abmedge.payment.PaymentUnit;
+import com.google.abmedge.payment.PurchaseItem;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * This is the main controller class for the api-server service defines the APIs exposed by the
@@ -122,13 +125,49 @@ public class ApiServerController {
     return new ResponseEntity<>(FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> search(@RequestParam("message") String message) {
+  
+  public static class SearchRequest {
+    private String message;
+    private boolean item_flag;
+
+    public String getMessage() {
+      return message;
+    }
+
+    public void setMessage(String message) {
+      this.message = message;
+    }
+
+    public boolean isItem_flag() {
+      return item_flag;
+    }
+
+    public void setItem_flag(boolean item_flag) {
+      this.item_flag = item_flag;
+    }
+  }
+
+  @PostMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> search(@RequestBody SearchRequest searchRequest) {
     String itemsEndpoint = INVENTORY_SERVICE + ITEMS_SEARCH_EP;
+    Gson gson = new Gson();
+
+    // Create a Map to represent the JSON structure
+    Map<String, Object> requestBodyMap = new HashMap<>();
+
+    requestBodyMap.put("message", searchRequest.message);
+    requestBodyMap.put("item_flag", true);
+    String requestBody = gson.toJson(requestBodyMap);
+
     try {
-      HttpRequest request = HttpRequest.newBuilder().GET().uri(URI.create(itemsEndpoint + "?message=" + message)).build();
-      HttpResponse<String> response =
-          HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+      HttpRequest request =
+      HttpRequest.newBuilder()
+          .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+          .uri(URI.create(itemsEndpoint))
+          .header("Content-Type", "application/json")
+          .build();
+    HttpResponse<String> response =
+            HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
       int statusCode = response.statusCode();
       if (statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.NO_CONTENT.value()) {
         String responseItems = response.body();
@@ -170,6 +209,7 @@ public class ApiServerController {
     } catch (IOException | InterruptedException e) {
       LOGGER.error(String.format("Failed to fetch store types from '%s'", itemsEndpoint), e);
     }
+    
     return new ResponseEntity<>(FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 

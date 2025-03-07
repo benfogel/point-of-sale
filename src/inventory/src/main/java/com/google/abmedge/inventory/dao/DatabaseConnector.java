@@ -16,16 +16,18 @@
 
 package com.google.abmedge.inventory.dao;
 
-import com.google.abmedge.inventory.Item;
-import com.google.abmedge.inventory.ItemRepository;
-import com.google.abmedge.inventory.util.InventoryStoreConnectorException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Component;
+
+import com.google.abmedge.inventory.Item;
+import com.google.abmedge.inventory.ItemRepository;
+import com.google.abmedge.inventory.util.InventoryStoreConnectorException;
 
 /**
  * An implementation of the {@link InventoryStoreConnector} that connects to the database to persist

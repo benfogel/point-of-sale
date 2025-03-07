@@ -20,6 +20,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,7 +56,9 @@ import com.google.abmedge.inventory.dto.Inventory;
 import com.google.abmedge.inventory.util.InventoryStoreConnectorException;
 import com.google.abmedge.payment.PurchaseItem;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -172,23 +175,22 @@ public class InventoryController {
     }
   }
 
-
+  // Currently this pulls from the LLM + RAG then ingest the item if it does not exist. 
   @PostMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> search(@RequestBody SearchRequest searchRequest) {
 
     Gson gson = new Gson();
 
-    // Create a Map to represent the JSON structure
     Map<String, Object> requestBodyMap = new HashMap<>();
 
     requestBodyMap.put("message", searchRequest.message);
     requestBodyMap.put("item_flag", true);
     
-    // String encodedMessage = UriUtils.encodeQueryParam(message, StandardCharsets.UTF_8);
     String requestBody = gson.toJson(requestBodyMap);
     LOGGER.info(searchRequest.message);
     String endpoint = LLM_SERVICE + LLM_EP;
-    String content = new String();
+    JsonObject jsonItems= new JsonObject();
+
     try {
     HttpRequest request =
         HttpRequest.newBuilder()
@@ -200,14 +202,10 @@ public class InventoryController {
             HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
         int statusCode = response.statusCode();
         if (statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.NO_CONTENT.value()) {
-          String responseRecipe = response.body();
+          String responseIngredients = response.body();
           Gson gson_response = new Gson();
-          JsonObject jsonRecipe = gson_response.fromJson(responseRecipe,JsonObject.class);
-          content = jsonRecipe.get("content").getAsString();
+          jsonItems = gson_response.fromJson(responseIngredients,JsonObject.class);
 
-          LOGGER.info(String.format(
-                  "'%s' Response: \n%s",
-                  endpoint, content));
 
         }
       }     
@@ -215,15 +213,65 @@ public class InventoryController {
         LOGGER.error(String.format("Failed to fetch recipes '%s'", endpoint), e);
       }
 
-      LOGGER.info(content);
     
+    JsonElement rootElement = JsonParser.parseString(jsonItems.get("content").toString());
+    JsonObject rootObject = GSON.fromJson(rootElement.getAsString(),JsonObject.class);
+  //   JsonArray items = GSON.fromJson(rootObject.get("items").toString(),JsonArray.class);
+  //   //JsonObject items = content.get("items").getAsJsonObject();
+  //   //String content=jsonItems.get("content").toString();
+
+  //   LOGGER.info(String.format(
+  //           "'%s' Response: \n%s",
+  //           endpoint, items.toString()));
+
+  //   List<Item> itemlist= new ArrayList<>();
+  //   for (JsonElement itemElement : items) {
+  //     if (itemElement.isJsonObject()) {
+  //         LOGGER.info(String.format("Printing %s",itemElement.toString()));
+  //         String name=itemElement.getAsJsonObject().get("name").toString();
+  //         String type=itemElement.getAsJsonObject().get("type").toString();
+  //         String price=itemElement.getAsJsonObject().get("price").toString();
+  //         String imageUrl=itemElement.getAsJsonObject().get("imageUrl").toString();
+  //         String quantity=itemElement.getAsJsonObject().get("quantity").toString();
+          
+  //         Item item = new Item();
+  //         item.setName(name);
+  //         item.setType(type);
+  //         item.setPrice(new BigDecimal(price));
+  //         item.setImageUrl(imageUrl);
+  //         item.setQuantity(100);
+  //         // UUID uuid = UUID.randomUUID();
+  //         // item.setId(uuid);   
+  //         itemlist.add(item);
+  //     } else {
+  //         System.err.println("Warning: Skipping non-JsonObject element in 'items' array: " + itemElement);
+  //     }
+  // }
+
+   
+    Inventory inventory = GSON.fromJson(rootObject, Inventory.class);
+    Map<String, Set<String>> itemTypeToNameMap = getItemTypeToNamesMap();
+    Map<String, UUID> getItemNameToIdMap = getItemNameToIdMap();
     
-    List<Item> inventoryItems =
-        activeItemsType.equals(ALL_ITEMS)
-            ? activeConnector.getAll()
-            : activeConnector.getAllByType(activeItemsType);
-    String jsonString = GSON.toJson(inventoryItems, new TypeToken<List<Item>>() {}.getType());
-    return new ResponseEntity<>(jsonString, HttpStatus.OK);
+    List<Item> itemlist_uuid= new ArrayList<>();
+    for (Item a : inventory.getItems()) {
+      LOGGER.info(String.format("%s",a.toString()));
+      if( !insertIfNotExists(a, itemTypeToNameMap)){
+        // exists . need to get the itemID by 
+        LOGGER.info(String.format("Already Exists.",a.getId()));
+        UUID itemId = getItemNameToIdMap.get(a.getName());
+        a.setId(itemId);
+        itemlist_uuid.add(a);
+    } else{
+      LOGGER.info(String.format("Created new.",a.getId()));
+      itemlist_uuid.add(a);}
+    }
+    Inventory inventory_uuid= new Inventory(); 
+    inventory_uuid.setItems(itemlist_uuid);
+    String jsonitemlists = GSON.toJson(inventory_uuid.getItems(), new TypeToken<List<Item>>() {}.getType());
+
+
+    return new ResponseEntity<>(jsonitemlists, HttpStatus.OK);
   }
 
   @GetMapping(value = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -420,12 +468,21 @@ public class InventoryController {
     return itemTypeToNameMap;
   }
 
-  private void insertIfNotExists(Item i, Map<String, Set<String>> itemTypeToNameMap) {
+  public Map<String, UUID> getItemNameToIdMap() {
+    Map<String, UUID> itemNameToIdMap = new HashMap<>();
+    List<Item> loadedItems = activeConnector.getAll();
+
+    loadedItems.forEach(item -> itemNameToIdMap.put(item.getName(), item.getId()));
+
+    return itemNameToIdMap;
+  }
+
+  private Boolean insertIfNotExists(Item i, Map<String, Set<String>> itemTypeToNameMap) {
     if (itemTypeToNameMap.containsKey(i.getType())
         && itemTypeToNameMap.get(i.getType()).contains(i.getName())) {
       LOGGER.warn(
           "Item ['type': {}, 'name': {}] already exists. Skipping..", i.getType(), i.getName());
-      return;
+      return false;
     }
     try {
       activeConnector.insert(i);
@@ -433,5 +490,6 @@ public class InventoryController {
       LOGGER.error("Failed to insert item '{}' of type '{}'", i.getName(), i.getType(), e);
     }
     LOGGER.info(String.format("Inserting new item: %s", i));
+    return true;
   }
 }

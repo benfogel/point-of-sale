@@ -81,7 +81,10 @@ public class InventoryController {
       .build();
   private static final String LLM_EP_ENV = "LLM_EP";
   private static final String LLM_EP = "/chat";
-  private static  String LLM_SERVICE = "http://localhost:8888";
+  //private static  String LLM_SERVICE = "http://localhost:8888";
+  private static String PAYMENTS_SERVICE = "http://payments-svc:8080";
+
+  private static  String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80";
 
   // the context of the inventory service (e.g. textile, food, electronics, etc)
   private String activeItemsType;

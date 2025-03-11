@@ -64,6 +64,11 @@ spec:
             configMapKeyRef:
               name: service-configs
               key: ITEMS
+        - name: LLM_EP
+          valueFrom:
+            configMapKeyRef:
+              name: service-configs
+              key: LLM_EP
         resources:
           requests:
             cpu: 100m

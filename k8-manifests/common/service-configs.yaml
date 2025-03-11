@@ -20,7 +20,7 @@ metadata:
 data:
   INVENTORY_EP: "http://inventory-svc:8080"
   PAYMENTS_EP: "http://payments-svc:8080"
-  LLM_EP: "http://next-action-agent-svc:8080"
+  LLM_EP: "http://next-action-agent-svc.next-action-assistant:80"
   MYSQL_HOST: "mysql-db"
   ACTIVE_ITEM_TYPE: "ingredient"
   ITEMS: |

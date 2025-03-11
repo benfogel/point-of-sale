@@ -61,7 +61,8 @@ public class BillGenerator {
       .build();
   private static final String LLM_EP_ENV = "LLM_EP";
   private static final String LLM_EP = "/chat";
-  private static  String LLM_SERVICE = "http://localhost:8888";
+  //private static  String LLM_SERVICE = "http://localhost:8888";
+  private static  String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80";
 
   
 
@@ -116,7 +117,7 @@ public class BillGenerator {
 
     // Create a Map to represent the JSON structure
     Map<String, Object> requestBodyMap = new HashMap<>();
-    String message = "with the following ingredients" + itemlist.toString() + ", what recipes can i make?";
+    String message = "With the following ingredients" + itemlist.toString() + ", what recipes can I make?";
     requestBodyMap.put("message", message);
     requestBodyMap.put("item_flag", false);
     

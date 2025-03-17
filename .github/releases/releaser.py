@@ -15,6 +15,7 @@ UI_POM = "src/ui/pom.xml"
 API_SERVER_POM = "src/api-server/pom.xml"
 INVENTORY_POM = "src/inventory/pom.xml"
 PAYMENTS_POM = "src/payments/pom.xml"
+GATEWAY_POM = "src/gateway/pom.xml"
 UI_PACKAGE_JSON = "src/ui/package.json"
 RELEASE_PACKAGE_JSON = "package.json"
 RELEASE_YAML_DIR = "k8-manifests/release/"
@@ -24,7 +25,8 @@ POM_SOURCES_PATH = [
     UI_POM,
     API_SERVER_POM,
     INVENTORY_POM,
-    PAYMENTS_POM
+    PAYMENTS_POM,
+    GATEWAY_POM
 ]
 
 def getCurrentVersion(xmlParser, pom: str) -> str:

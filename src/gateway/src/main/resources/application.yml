@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+      - id: llm
+        uri: "http://next-action-agent-svc.next-action-assistant.svc.cluster.local"
+        predicates:
+        - Path=/llm/**
+      - id: cashier
+        uri: "http://cashier-frontend.cashier.svc.cluster.local:8080"
+        predicates:
+        - Path=/cashier/**
+      - id: pos
+        uri: "http://api-server-svc.pos.svc.cluster.local:8080"
+        predicates:
+        - Path=/pos/**

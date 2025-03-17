@@ -22,6 +22,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +32,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +50,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.google.abmedge.apiserver.dto.PayRequest;
 import com.google.abmedge.inventory.Item;
@@ -69,6 +74,7 @@ public class ApiServerController {
   private static final String FAILED = "Failed to fetch items; try again after a while";
   private static final String INVENTORY_EP_ENV = "INVENTORY_EP";
   private static final String PAYMENTS_EP_ENV = "PAYMENTS_EP";
+  private static final String LLM_EP_ENV = "LLM_EP";
   private static final String ITEMS_EP = "/items";
   private static final String ITEMS_SEARCH_EP = "/search";
   private static final String TYPES_EP = "/types";
@@ -88,7 +94,12 @@ public class ApiServerController {
   private static String INVENTORY_SERVICE = "http://inventory-svc:8080";
 
   private static String PAYMENTS_SERVICE = "http://payments-svc:8080";
+
+  private static String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80/";
+
   private static final Gson GSON = new Gson();
+
+  private final RestTemplate restTemplate = new RestTemplate();
 
   @PostConstruct
   void init() {
@@ -345,6 +356,7 @@ public class ApiServerController {
   private void initServiceEndpoints() {
     String inventory = System.getenv(INVENTORY_EP_ENV);
     String payments = System.getenv(PAYMENTS_EP_ENV);
+    String llm = System.getenv(LLM_EP_ENV);
     if (StringUtils.isNotBlank(inventory)) {
       LOGGER.info(String.format("Setting inventory service endpoint to: %s", inventory));
       INVENTORY_SERVICE = inventory;
@@ -362,6 +374,15 @@ public class ApiServerController {
           String.format(
               "Could not read environment variable %s; thus defaulting to %s",
               PAYMENTS_EP_ENV, PAYMENTS_SERVICE));
+    }
+    if (StringUtils.isNotBlank(llm)) {
+      LOGGER.info(String.format("Setting llm service endpoint to: %s", llm));
+      LLM_SERVICE = llm;
+    } else {
+      LOGGER.warn(
+          String.format(
+              "Could not read environment variable %s; thus defaulting to %s",
+              LLM_EP_ENV, LLM_SERVICE));
     }
   }
 
@@ -436,4 +457,51 @@ public class ApiServerController {
   private boolean isSuccessResponse(int statusCode) {
     return String.valueOf(statusCode).startsWith("2");
   }
+
+  @GetMapping("/chat/**")
+  public ResponseEntity<String> chatGet(HttpServletRequest request, HttpEntity<String> httpEntity) {
+      return proxyRequest(request, httpEntity, HttpMethod.GET, LLM_SERVICE, "/chat/");
+  }
+
+  @PostMapping("/chat/**")
+  public ResponseEntity<String> chatPost(HttpServletRequest request, HttpEntity<String> httpEntity) {
+      return proxyRequest(request, httpEntity, HttpMethod.POST, LLM_SERVICE, "/chat/");
+  }
+
+  private ResponseEntity<String> proxyRequest(HttpServletRequest request, HttpEntity<String> httpEntity, HttpMethod method, String targetUrl, String proxyPath) {
+        String subPath = extractSubPath(request, proxyPath);
+        String target = targetUrl + subPath;
+
+        HttpHeaders headers = new HttpHeaders();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            Enumeration<String> headerValues = request.getHeaders(headerName);
+            while (headerValues.hasMoreElements()) {
+                headers.add(headerName, headerValues.nextElement());
+            }
+        }
+
+        //Remove host header to avoid issues with target service.
+        headers.remove(HttpHeaders.HOST);
+
+        HttpEntity<String> targetHttpEntity = new HttpEntity<>(httpEntity.getBody(), headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(target, method, targetHttpEntity, String.class);
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.setContentType(response.getHeaders().getContentType());
+            return new ResponseEntity<>(response.getBody(), responseHeaders, response.getStatusCode());
+        } catch (Exception e) {
+            // Handle exceptions (e.g., log, return error response)
+            return ResponseEntity.status(500).body("Proxy error: " + e.getMessage());
+        }
+    }
+
+    private String extractSubPath(HttpServletRequest request, String proxyPath) {
+        String path = request.getRequestURI();
+        int proxyIndex = path.indexOf(proxyPath) + proxyPath.length();
+        return path.substring(proxyIndex);
+
+    }
 }

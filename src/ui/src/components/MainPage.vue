@@ -15,24 +15,21 @@
 -->
 
 <template>
-  <div class="container">
+  <div class="container-fluid">
     <div class="row" id="pos">
       <div class="col-md-8 col-md-offset-2">
-        <div class="header-container">
-          <h1 class="h1-flex">Point of Sale - Customized</h1>
-        </div>
+        <nav class="navbar navbar-light bg-light">
+          <span class="navbar-brand mb-0 h1">
+            <img src="../assets/logo.gif"
+                 alt="Google Cloud"
+                 width="30"
+                 height="24">
+            Google Cloud - Self check-out
+          </span>
+        </nav>
+
         <div class="row">
           <div class="col-md-6">
-            <transaction-view
-              :items="currentItems"
-              @remove="removeItem"
-              @edit="toggleEdit"
-              @pay="pay"
-              @clear="clear"
-            ></transaction-view>
-          </div>
-          <div class="col-md-6">
-            <item-list :items="items" @add="addItem"></item-list>
             <b-card
               border-variant="secondary"
               header="Can't find an item?"
@@ -73,16 +70,27 @@
                 >Add Item</b-button>
               </div>
             </div>
+            <item-list :items="items" @add="addItem"></item-list>
+          </div>
+          <div class="col-md-6">
+            <transaction-view
+              :items="currentItems"
+              @remove="removeItem"
+              @edit="toggleEdit"
+              @pay="pay"
+              @clear="clear"
+            ></transaction-view>
+
+            <div v-if="hasBill" class="bill-container">
+              <h2>Bill:</h2>
+              <pre class="print-container">{{ bill }}</pre>
+            </div>
           </div>
         </div>
       </div>
       <div class="col-md-2">
 
       </div>
-    </div>
-    <div v-if="hasBill" class="bill-container">
-      <h2>Bill:</h2>
-      <pre class="print-container">{{ bill }}</pre>
     </div>
   </div>
 </template>
@@ -224,7 +232,7 @@ export default {
       this.printedBill = responseData.printedBill;
       setTimeout(() => {
         this.clearBill();
-      }, 10000);
+      }, 15000);
     },
     clear() {
       this.lineItems = [];
@@ -256,6 +264,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+nav {
+  margin-bottom: 28px;
+}
+
 .col-md-8 {
   max-width: 100%;
   flex: 100%;

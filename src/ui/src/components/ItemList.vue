@@ -54,7 +54,7 @@ export default {
 
 <style scoped>
 .list-group {
-  margin-bottom: 28px;
+  margin-top: 28px;
 }
 
 </style>

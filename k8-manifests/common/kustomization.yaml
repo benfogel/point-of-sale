@@ -9,4 +9,3 @@ resources:
   - payments-svc.yaml
   - service-configs.yaml
   - springprofile-mysql.yaml
-  - springprofile-h2.yaml

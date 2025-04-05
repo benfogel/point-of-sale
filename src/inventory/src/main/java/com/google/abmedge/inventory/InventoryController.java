@@ -50,6 +50,7 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import com.google.abmedge.inventory.InventoryController.SearchRequest;
 import com.google.abmedge.inventory.dao.DatabaseConnector;
 import com.google.abmedge.inventory.dao.InventoryStoreConnector;
 import com.google.abmedge.inventory.dto.Inventory;
@@ -58,6 +59,7 @@ import com.google.abmedge.payment.PurchaseItem;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
@@ -155,6 +157,71 @@ public class InventoryController {
             : activeConnector.getAllByType(activeItemsType);
     String jsonString = GSON.toJson(inventoryItems, new TypeToken<List<Item>>() {}.getType());
     return new ResponseEntity<>(jsonString, HttpStatus.OK);
+  }
+
+  @PostMapping(value = "/itemsUpsell", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> itemsUpsell(@RequestBody String UpsellNotPopulatedArray) {
+    LOGGER.info(String.format(UpsellNotPopulatedArray));
+    // JsonObject jsonObject = JsonParser.parseString(UpsellNotPopulatedArray).getAsJsonObject();
+    // JsonArray upsellItemsArray = jsonObject.getAsJsonArray("upsellItems");
+    JsonElement jsonElement= JsonParser.parseString(UpsellNotPopulatedArray);
+    LOGGER.info(String.format(jsonElement.toString()));
+
+    JsonObject jsonObject = jsonElement.getAsJsonObject();
+    Map<String,Item> getItem = getItemNameToItem();
+    
+    LOGGER.info(getItem.toString());
+
+    for (JsonElement elem : jsonObject.getAsJsonArray("upsellItems")) {
+      LOGGER.info(String.format("PARSING"));
+      JsonObject upsellEntry = elem.getAsJsonObject();
+      LOGGER.info(String.format(upsellEntry.toString()));
+      if (upsellEntry.has("upsellItem") && upsellEntry.get("upsellItem").isJsonObject()) {
+        JsonObject upsellItemObject = upsellEntry.getAsJsonObject("upsellItem");
+        String name=upsellItemObject.get("name").getAsString();
+        LOGGER.info(String.format(upsellItemObject.toString()));
+
+        
+        Item matchedInventoryItem = getItem.get(name.toLowerCase());
+        
+        if(matchedInventoryItem != null) {      
+          LOGGER.info(matchedInventoryItem.toString());         
+          if (matchedInventoryItem.getLabels() != null) {
+            JsonArray labelsArray = new JsonArray();
+            for (String label : matchedInventoryItem.getLabels()) {
+                labelsArray.add(label);
+            }
+            upsellItemObject.add("labels", labelsArray); 
+          } else {
+            upsellItemObject.add("labels", new JsonArray()); 
+          }
+
+          if (matchedInventoryItem.getId() != null) { 
+            upsellItemObject.addProperty("UUID", matchedInventoryItem.getId().toString());
+          }
+
+          upsellItemObject.addProperty("Quantity", matchedInventoryItem.getQuantity());
+
+          if (matchedInventoryItem.getPrice() != null) {
+              upsellItemObject.addProperty("Price", matchedInventoryItem.getPrice());
+          }
+
+          if (matchedInventoryItem.getImageUrl() != null) {
+              upsellItemObject.addProperty("ImageURL", matchedInventoryItem.getImageUrl());
+          }
+
+        }
+        else {
+          LOGGER.info(String.format("Item not found"));
+        }
+        
+      LOGGER.info(String.format(upsellItemObject.toString()));
+      }
+        
+    }
+    
+    LOGGER.info(String.format(jsonObject.toString()));
+    return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
   }
 
   public static class SearchRequest {
@@ -477,6 +544,14 @@ public class InventoryController {
 
     loadedItems.forEach(item -> itemNameToIdMap.put(item.getName(), item.getId()));
 
+    return itemNameToIdMap;
+  }
+  
+  public Map<String, Item> getItemNameToItem() {
+    Map<String, Item> itemNameToIdMap = new HashMap<>();
+    List<Item> loadedItems = activeConnector.getAll();
+
+    loadedItems.forEach(item -> itemNameToIdMap.put(item.getName(), item));
     return itemNameToIdMap;
   }
 

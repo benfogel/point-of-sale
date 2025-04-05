@@ -76,12 +76,15 @@ public class ApiServerController {
   private static final String PAYMENTS_EP_ENV = "PAYMENTS_EP";
   private static final String LLM_EP_ENV = "LLM_EP";
   private static final String ITEMS_EP = "/items";
+  private static final String ITEMS_UPSELL_EP = "/itemsUpsell";
   private static final String ITEMS_SEARCH_EP = "/search";
   private static final String TYPES_EP = "/types";
   private static final String ITEMS_BY_ID_EP = "/items_by_id";
   private static final String SWITCH_EP = "/switch";
   private static final String UPDATE_EP = "/update";
   private static final String PAY_EP = "/pay";
+  private static final String PAY_UPSELL_EP= "/upsell";
+
   private static final HttpClient HTTP_CLIENT =
       HttpClient.newBuilder()
           .version(HttpClient.Version.HTTP_1_1)
@@ -276,7 +279,7 @@ public class ApiServerController {
    * </pre>
    */
   @PostMapping(value = "/pay")
-  public ResponseEntity<String> pay(@RequestBody PayRequest payRequest) {
+  public ResponseEntity<String> payOG(@RequestBody PayRequest payRequest) {
     BigDecimal totalCost = new BigDecimal(0);
     String responseStr;
     List<PurchaseItem> requestedItemList = payRequest.getItems();
@@ -325,6 +328,69 @@ public class ApiServerController {
             "Failed to process payment for the order", HttpStatus.INTERNAL_SERVER_ERROR);
       }
       responseStr = optionalBill.get();
+
+
+
+    } catch (IOException | InterruptedException e) {
+      return new ResponseEntity<>("FAILED", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return new ResponseEntity<>(responseStr, HttpStatus.OK);
+  }
+
+  @PostMapping(value = "/upsell")
+  public ResponseEntity<String> pay(@RequestBody PayRequest payRequest) {
+    BigDecimal totalCost = new BigDecimal(0);
+    String responseStr;
+    List<PurchaseItem> requestedItemList = payRequest.getItems();
+    List<PurchaseItem> purchaseItems = new ArrayList<>();
+    List<PaymentUnit> payUnits = new ArrayList<>();
+    if (requestedItemList.isEmpty()) {
+      return new ResponseEntity<>("", HttpStatus.OK);
+    }
+    Map<String, Long> itemIdsToCountMap =
+        requestedItemList.stream()
+            .collect(Collectors.toMap(pi -> pi.getItemId().toString(), PurchaseItem::getItemCount));
+    try {
+      Optional<List<Item>> optionalItemList = getItemDetails(itemIdsToCountMap);
+      if (optionalItemList.isEmpty()) {
+        return new ResponseEntity<>(
+            "Failed to fetch items details", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      List<Item> itemList = optionalItemList.get();
+      int totalItemsRetrieved = itemList.size();
+      int totalItemsRequested = itemIdsToCountMap.size();
+      if (totalItemsRetrieved != totalItemsRequested) {
+        LOGGER.warn(
+            String.format(
+                "There is a mismatch between number of items requested and retrieved - %s/%s",
+                totalItemsRetrieved, totalItemsRequested));
+      }
+      for (Item item : itemList) {
+        UUID id = item.getId();
+        BigDecimal itemCount = new BigDecimal(itemIdsToCountMap.get(id.toString()));
+        BigDecimal totalItemCost = item.getPrice().multiply(itemCount);
+        totalCost = totalCost.add(totalItemCost);
+        PurchaseItem purchaseItem = new PurchaseItem(id, itemIdsToCountMap.get(id.toString()));
+        PaymentUnit paymentUnit = new PaymentUnit(id, item.getName(), itemCount, totalItemCost);
+        purchaseItems.add(purchaseItem);
+        payUnits.add(paymentUnit);
+      }
+      boolean updatedItemDetails = updateItemDetails(purchaseItems);
+      if (!updatedItemDetails) {
+        return new ResponseEntity<>(
+            "Failed to update purchased item information", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      Optional<String> upsell =
+            getUpsell(payRequest.getType(), payRequest.getPaidAmount(), totalCost, payUnits);
+
+      if (upsell.isEmpty()) {
+        return new ResponseEntity<>(
+            "Failed to process payment for the order", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+
+      
+      responseStr = upsell.get();
     } catch (IOException | InterruptedException e) {
       return new ResponseEntity<>("FAILED", HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -454,9 +520,58 @@ public class ApiServerController {
     return Optional.empty();
   }
 
+  private Optional<String> getUpsell(
+      PaymentType paymentType,
+      BigDecimal amountOnRequest,
+      BigDecimal totalCost,
+      List<PaymentUnit> payUnits)
+      throws IOException, InterruptedException {
+    String endpoint = PAYMENTS_SERVICE + PAY_UPSELL_EP;
+    BigDecimal paidAmount = paymentType == PaymentType.CARD ? totalCost : amountOnRequest;
+    Payment payment = new Payment(payUnits, PaymentType.CARD, paidAmount);
+    String jsonString = GSON.toJson(payment, Payment.class);
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .POST(HttpRequest.BodyPublishers.ofString(jsonString))
+            .uri(URI.create(endpoint))
+            .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .build();
+    HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+    int statusCode = response.statusCode();
+    LOGGER.info(
+      String.format( "Response code for upsell: " + response.statusCode()));
+    LOGGER.info(
+      String.format( "Response Body for upsell: " + response.body()));
+
+    String endpointUpsell = INVENTORY_SERVICE + ITEMS_UPSELL_EP;
+    Gson gson = new Gson();
+    String requestBody = response.body();
+    
+
+    HttpRequest requestUpsell =
+    HttpRequest.newBuilder()
+        .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+        .uri(URI.create(endpointUpsell))
+        .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .build();
+    HttpResponse<String> responseUpsell = HTTP_CLIENT.send(requestUpsell, HttpResponse.BodyHandlers.ofString());
+    LOGGER.info(
+      String.format( "Response code for upsellPopulated: " + responseUpsell.statusCode()));
+    LOGGER.info(
+      String.format( "Response Body for upsellPopulated: " + responseUpsell.body()));
+
+    if (isSuccessResponse(statusCode)) {
+      return Optional.of(responseUpsell.body());
+    }
+    LOGGER.error(String.format("Failed to process payment via '%s'", endpoint));
+    return Optional.empty();
+  }
+
   private boolean isSuccessResponse(int statusCode) {
     return String.valueOf(statusCode).startsWith("2");
   }
+
+  
 
   @GetMapping("/chat/**")
   public ResponseEntity<String> chatGet(HttpServletRequest request, HttpEntity<String> httpEntity) {

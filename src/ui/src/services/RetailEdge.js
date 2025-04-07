@@ -62,6 +62,9 @@ export default {
   async pay(payRequest) {
     return post(`${API_SERVER_URL}/api/pay`, HEADERS, payRequest);
   },
+  async upsell(payRequest) {
+    return post(`${API_SERVER_URL}/api/upsell`, HEADERS, payRequest);
+  },
   async items() {
     return get(`${API_SERVER_URL}/api/items`, HEADERS);
   },

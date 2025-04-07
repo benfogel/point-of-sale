@@ -116,41 +116,41 @@ public class BillGenerator {
     Gson gson = new Gson();
 
     // Create a Map to represent the JSON structure
-    Map<String, Object> requestBodyMap = new HashMap<>();
-    String message = "With the following ingredients" + itemlist.toString() + ", what recipes can I make?";
-    requestBodyMap.put("message", message);
-    requestBodyMap.put("item_flag", false);
+    // Map<String, Object> requestBodyMap = new HashMap<>();
+    // String message = "With the following ingredients" + itemlist.toString() + ", what recipes can I make?";
+    // requestBodyMap.put("message", message);
+    // requestBodyMap.put("item_flag", false);
     
     // String encodedMessage = UriUtils.encodeQueryParam(message, StandardCharsets.UTF_8);
-    String requestBody = gson.toJson(requestBodyMap);
-    LOGGER.info(message);
-    String endpoint = LLM_SERVICE + LLM_EP;
-    String content = new String();
-    try {
-    HttpRequest request =
-        HttpRequest.newBuilder()
-            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-            .uri(URI.create(endpoint))
-            .header("Content-Type", "application/json")
-            .build();
-    HttpResponse<String> response =
-            HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-        int statusCode = response.statusCode();
-        if (statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.NO_CONTENT.value()) {
-          String responseRecipe = response.body();
-          Gson gson_response = new Gson();
-          JsonObject jsonRecipe = gson_response.fromJson(responseRecipe,JsonObject.class);
-          content = jsonRecipe.get("content").getAsString();
+    // String requestBody = gson.toJson(requestBodyMap);
+    // LOGGER.info(message);
+    // String endpoint = LLM_SERVICE + LLM_EP;
+    // String content = new String();
+    // try {
+    // HttpRequest request =
+    //     HttpRequest.newBuilder()
+    //         .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+    //         .uri(URI.create(endpoint))
+    //         .header("Content-Type", "application/json")
+    //         .build();
+    // HttpResponse<String> response =
+    //         HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+    //     int statusCode = response.statusCode();
+    //     if (statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.NO_CONTENT.value()) {
+    //       String responseRecipe = response.body();
+    //       Gson gson_response = new Gson();
+    //       JsonObject jsonRecipe = gson_response.fromJson(responseRecipe,JsonObject.class);
+    //       content = jsonRecipe.get("content").getAsString();
 
-          LOGGER.info(String.format(
-                  "'%s' Response: \n%s",
-                  endpoint, content));
+    //       LOGGER.info(String.format(
+    //               "'%s' Response: \n%s",
+    //               endpoint, content));
 
-        }
-      }     
-        catch (IOException | InterruptedException e) {
-        LOGGER.error(String.format("Failed to fetch recipes '%s'", endpoint), e);
-      }
+    //     }
+    //   }     
+    //     catch (IOException | InterruptedException e) {
+    //     LOGGER.error(String.format("Failed to fetch recipes '%s'", endpoint), e);
+    //   }
           
     billBuilder.append(BILL_HEADER);
     float tax = Double.valueOf(total * TAX_VALUE).floatValue();
@@ -162,9 +162,9 @@ public class BillGenerator {
     billBuilder.append(infoLine(BALANCE, balance));
     billBuilder.append(BILL_HEADER);
 
-    for (String line : content.split("\\n")) {
-      billBuilder.append(formatLine(line, BILL_HEADER.length())).append("\n");
-  }
+  //   for (String line : content.split("\\n")) {
+  //     billBuilder.append(formatLine(line, BILL_HEADER.length())).append("\n");
+  // }
 
     LOGGER.info(String.format("Processed payment:\n%s", billBuilder));
     //  ----------------------------------------------------------------------------

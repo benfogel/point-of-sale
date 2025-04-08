@@ -74,8 +74,8 @@ public class PaymentsController {
   private static final String LLM_EP_ENV = "LLM_EP";
   private static final String LLM_EP_CHAT = "/chat";
   private static final String LLM_EP_UPSELL= "/upsell";
-  private static  String LLM_SERVICE = "http://localhost:8888";
-  // private static  String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80";
+  // private static  String LLM_SERVICE = "http://localhost:8888";
+  private static  String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80";
   private static final HttpClient HTTP_CLIENT =
   HttpClient.newBuilder()
       .version(HttpClient.Version.HTTP_1_1)

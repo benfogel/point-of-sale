@@ -97,9 +97,8 @@ public class ApiServerController {
   private static String INVENTORY_SERVICE = "http://inventory-svc:8080";
 
   private static String PAYMENTS_SERVICE = "http://payments-svc:8080";
-  private static String LLM_SERVICE = "http:/localhost:8888/";
-
-  // private static String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80/";
+  // private static String LLM_SERVICE = "http:/localhost:8888/";
+  private static String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80/";
 
   private static final Gson GSON = new Gson();
 

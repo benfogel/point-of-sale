@@ -48,6 +48,7 @@
                   v-model="findItemDescription"
                   placeholder="Describe the item"
                   class="col-md-4"
+                  @keydown.enter="findItem"
                 ></b-form-input>
                 <b-button
                   class="col-md-12"
@@ -57,13 +58,20 @@
               </b-form>
             </b-card>
             <div class="row">
+              <div v-if="findingItems"
+                class="spinner-border find-item-spinner"
+                role="status">
+                <span class="sr-only">
+                  Loading...
+                </span>
+              </div>
               <div
                 v-for="(item, index) in foundItems"
                 :key="index"
                 class="col-md-4 found-item"
                 align="center">
-                {{  item.name }} -
-                ${{  item.price }}
+                <h5>{{  item.name }}</h5>
+                <h6>${{  item.price }}</h6>
                 <b-button
                   variant="primary"
                   @click="addFoundItem(item)"
@@ -115,7 +123,12 @@
           </span>
         </div>
 
-        <h3 v-if="!loadingUpsell">View the following items</h3>
+        <h3 v-if="!loadingUpsell && upsellItems.length == 0">
+          No recommendations found, proceed to complete payment
+        </h3>
+        <h3 v-if="!loadingUpsell && upsellItems.length > 0">
+          Considering these recommendations for new recipes
+        </h3>
         <div v-if="!loadingUpsell" class="row">
           <div
             v-for="(item, index) in upsellItems"
@@ -126,7 +139,7 @@
               <div class="card-body">
               <h5 class="card-title">{{  item.name }}</h5>
               <h6 class="card-subtitle mb-2 text-muted">
-                {{ item.price }}
+                ${{ item.price }}
               </h6>
               <p class="card-text">
                 {{ item.recipeSuggestion }}
@@ -186,6 +199,7 @@ export default {
       printedBill: null,
       findItemDescription: '',
       foundItems: [],
+      findingItems: false,
       upsellItems: [],
       loadingUpsell: false,
     };
@@ -244,19 +258,32 @@ export default {
     },
     addFoundItem(item) {
       this.addItem(item);
-      this.foundItems = [];
     },
     addUpsellItem(upsellItem) {
       upsellItem.added = true;
       this.addItem(upsellItem);
     },
-    async findItem() {
+    noop(event) {
+      if (event.preventDefault) {
+        event.preventDefault();
+      }
+    },
+    async findItem(event) {
+      if (event.preventDefault) {
+        event.preventDefault();
+      }
+
+      this.findingItems = true;
+      this.foundItems = [];
+
       const response = await RetailEdgeAppApi.search(this.findItemDescription);
       if (response.status !== 200 && response.status !== 204) {
+        this.findingItems = false;
         this.notifyFailure('Failed to search for items!');
         return;
       }
 
+      this.findingItems = false;
       const data = await response.json();
       this.foundItems = data.reduce((acc, curr) => {
         acc = [curr, ...acc];
@@ -275,6 +302,11 @@ export default {
       item.editing = !item.editing;
     },
     toggleUpsell() {
+      if (this.lineItems.length == 0) {
+        this.notifyWarning('No items in cart!');
+        return;
+      }
+
       this.loadingUpsell = true;
       this.upsellItems = [];
 
@@ -308,6 +340,12 @@ export default {
       };
 
       const response = await RetailEdgeAppApi.upsell(upsellRequest);
+
+      if (response.status !== 200 && response.status !== 204) {
+        this.loadingUpsell = false;
+        return;
+      }
+
       const data = await response.json();
 
       console.log(data);
@@ -331,15 +369,19 @@ export default {
         };
 
         for (const item of this.items) {
-          if (upsellItem.name === item.name) {
+          if (upsellItem.name.toLowerCase() === item.name.toLowerCase()) {
             upsellItem = {...item, ...upsellItem};
+            upsellItem.name = item.name;
             upsellItem.matched = true;
             break;
           }
         }
 
         if (upsellItem.matched) {
-          this.upsellItems.push(upsellItem);
+          // CAP upsell at 9 items
+          if (this.upsellItems.length < 9) {
+            this.upsellItems.push(upsellItem);
+          }
         } else {
           console.log(`no match for ${upsellItem.name}`);
         }
@@ -450,5 +492,15 @@ nav {
 
 .found-item {
   padding-top: 28px
+}
+
+.find-item-spinner {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 28px;
+}
+
+.card {
+  margin-bottom: 8px;
 }
 </style>

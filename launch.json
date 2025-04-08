@@ -10,7 +10,7 @@
       "args": "",
       "envFile": "${workspaceFolder}/.env",
       "env": {
-        "server.port": "8080",
+        "server.port": "8081",
         "INVENTORY_EP": "http://localhost:8082",
         "PAYMENTS_EP": "http://localhost:8083",
         "LLM_EP": "http://localhost:8888"

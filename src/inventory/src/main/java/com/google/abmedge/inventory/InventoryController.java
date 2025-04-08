@@ -83,10 +83,10 @@ public class InventoryController {
       .build();
   private static final String LLM_EP_ENV = "LLM_EP";
   private static final String LLM_EP = "/chat";
-  //private static  String LLM_SERVICE = "http://localhost:8888";
+  private static  String LLM_SERVICE = "http://localhost:8888";
   private static String PAYMENTS_SERVICE = "http://payments-svc:8080";
 
-  private static  String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80";
+  // private static  String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80";
 
   // the context of the inventory service (e.g. textile, food, electronics, etc)
   private String activeItemsType;
@@ -161,11 +161,11 @@ public class InventoryController {
 
   @PostMapping(value = "/itemsUpsell", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> itemsUpsell(@RequestBody String UpsellNotPopulatedArray) {
-    LOGGER.info(String.format(UpsellNotPopulatedArray));
+    LOGGER.info(UpsellNotPopulatedArray);
     // JsonObject jsonObject = JsonParser.parseString(UpsellNotPopulatedArray).getAsJsonObject();
     // JsonArray upsellItemsArray = jsonObject.getAsJsonArray("upsellItems");
     JsonElement jsonElement= JsonParser.parseString(UpsellNotPopulatedArray);
-    LOGGER.info(String.format(jsonElement.toString()));
+    LOGGER.info(jsonElement.toString());
 
     JsonObject jsonObject = jsonElement.getAsJsonObject();
     Map<String,Item> getItem = getItemNameToItem();
@@ -175,11 +175,11 @@ public class InventoryController {
     for (JsonElement elem : jsonObject.getAsJsonArray("upsellItems")) {
       LOGGER.info(String.format("PARSING"));
       JsonObject upsellEntry = elem.getAsJsonObject();
-      LOGGER.info(String.format(upsellEntry.toString()));
+      LOGGER.info(upsellEntry.toString());
       if (upsellEntry.has("upsellItem") && upsellEntry.get("upsellItem").isJsonObject()) {
         JsonObject upsellItemObject = upsellEntry.getAsJsonObject("upsellItem");
         String name=upsellItemObject.get("name").getAsString();
-        LOGGER.info(String.format(upsellItemObject.toString()));
+        LOGGER.info(upsellItemObject.toString());
 
         
         Item matchedInventoryItem = getItem.get(name.toLowerCase());
@@ -215,12 +215,12 @@ public class InventoryController {
           LOGGER.info(String.format("Item not found"));
         }
         
-      LOGGER.info(String.format(upsellItemObject.toString()));
+      LOGGER.info(upsellItemObject.toString());
       }
         
     }
     
-    LOGGER.info(String.format(jsonObject.toString()));
+    LOGGER.info(jsonObject.toString());
     return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
   }
 

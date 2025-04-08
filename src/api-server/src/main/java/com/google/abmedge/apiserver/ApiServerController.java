@@ -97,8 +97,9 @@ public class ApiServerController {
   private static String INVENTORY_SERVICE = "http://inventory-svc:8080";
 
   private static String PAYMENTS_SERVICE = "http://payments-svc:8080";
+  private static String LLM_SERVICE = "http:/localhost:8888/";
 
-  private static String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80/";
+  // private static String LLM_SERVICE = "http://next-action-agent-svc.next-action-assistant:80/";
 
   private static final Gson GSON = new Gson();
 
@@ -540,8 +541,7 @@ public class ApiServerController {
     int statusCode = response.statusCode();
     LOGGER.info(
       String.format( "Response code for upsell: " + response.statusCode()));
-    LOGGER.info(
-      String.format( "Response Body for upsell: " + response.body()));
+    LOGGER.info( "Response Body for upsell: " + response.body());
 
     String endpointUpsell = INVENTORY_SERVICE + ITEMS_UPSELL_EP;
     Gson gson = new Gson();
@@ -558,7 +558,7 @@ public class ApiServerController {
     LOGGER.info(
       String.format( "Response code for upsellPopulated: " + responseUpsell.statusCode()));
     LOGGER.info(
-      String.format( "Response Body for upsellPopulated: " + responseUpsell.body()));
+       "Response Body for upsellPopulated: " + responseUpsell.body());
 
     if (isSuccessResponse(statusCode)) {
       return Optional.of(responseUpsell.body());
